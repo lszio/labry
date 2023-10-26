@@ -17,6 +17,8 @@ services:
     sysctls:
       - net.ipv4.ip_forward=1
       - net.ipv6.conf.all.forwarding=1
+    profiles:
+      - vpn
 
   headscale-ui:
     image: ghcr.io/gurucomputing/headscale-ui:latest
@@ -24,3 +26,25 @@ services:
     container_name: headscale-ui
     ports:
       - 9443:443
+    profiles:
+      - vpn
+
+  ztncui:
+    image: keynetworks/ztncui
+    container_name: ztncui
+    restart: unless-stopped
+    ports:
+      - 14000:4000
+      - 19993:9993
+      - 19993:9993/udp
+      - 13180:3180
+    volumes:
+      - ./data/zerotier:/var/lib/zerotier-one
+      - ./data/ztncui:/opt/key-networks/ztncui/etc
+    environment:
+      # - MYADDR=1.1.1.1 #改成自己的服务器公网IP
+      - HTTP_PORT=4000
+      - HTTP_ALL_INTERFACES=yes
+      - ZTNCUI_PASSWD=mrdoc.fun
+    profiles:
+      - vpn
