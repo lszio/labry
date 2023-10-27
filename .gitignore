@@ -1,2 +1,4 @@
 data/*
 secret.yml
+
+.env
