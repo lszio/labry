@@ -9,3 +9,5 @@ logs
 .clj-kondo
 
 .env
+
+configs/jellyfin

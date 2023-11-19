@@ -15,6 +15,23 @@ services:
       - ENDPOINT=${ZTNCUI_ENDPOINT:-localhost/9993}
       - HTTPS_PORT=3443
       - HTTP_ALL_INTERFACES=yes
-      - ZTNCUI_PASSWD=${ZTNCUI_PASSWORD}
+      - ZTNCUI_PASSWD=${ZTNCUI_PASSWORD:-ztncui}
     profiles:
       - vpn
+
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin
+    container_name: jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Shanghai
+    volumes:
+      - ${JELLYFIN_CONFIG:-./data/jellyfin}:/config
+      - ${JELLYFIN_MEDIA:-/data/media}:/data
+    ports:
+      - 8096:8096
+    restart: unless-stopped
+    profiles:
+      - jellyfin
+      - media

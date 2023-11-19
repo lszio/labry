@@ -3,3 +3,6 @@
 * envs
 ZTNCUI_ADDRESS=1.1.1.1
 ZTNCUI_PASSWORD=password
+
+JELLYFIN_CONFIG=/data/jellyfin
+JELLYFIN_MEDIA=/data/media
