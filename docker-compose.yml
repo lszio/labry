@@ -35,3 +35,20 @@ services:
     profiles:
       - jellyfin
       - media
+
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    container_name: postgres
+    environment:
+      POSTGRES_DB: ${LABRY_POSTGRES_DB:-labry}
+      POSTGRES_USER: ${LABRY_POSTGRES_USER:-labry}
+      POSTGRES_PASSWORD: ${LABRY_POSTGRES_PASSWORD:-labry}
+    volumes:
+      - ${LABRY_POSTGRES_VOLUME:-./data/postgres}:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    profiles:
+      - db
+      - database
+      - postgres
