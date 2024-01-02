@@ -45,6 +45,7 @@ services:
       POSTGRES_USER: ${LABRY_POSTGRES_USER:-labry}
       POSTGRES_PASSWORD: ${LABRY_POSTGRES_PASSWORD:-labry}
     volumes:
+      - ../configs/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ${LABRY_POSTGRES_DATA:-./data/postgres}:/var/lib/postgresql/data
     ports:
       - 5432:5432
