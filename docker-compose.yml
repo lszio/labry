@@ -57,10 +57,45 @@ services:
   gogs:
     image: gogs/gogs
     ports:
-      - 22:2222
+      - 2222:22
       - 3000:3000
     volumes:
       - ${LABRY_GOGS_DATA:-./data/gogs}:/data
     profiles:
       - git
       - gogs
+
+  jupyter:
+    image: jupyterhub/jupyterhub
+    container_name: jupyter
+    ports:
+      - 15751:8000
+      - 15752:8081
+    profiles:
+      - jupyter
+      - notebook
+
+  spdf:
+    image: frooodle/s-pdf:latest
+    ports:
+      - 12621:8080
+    volumes:
+      - ./data/spdf:/usr/share/tesseract-ocr/5/tessdata
+      - ./configs/spdf:/configs
+    environment:
+      - DOCKER_ENABLE_SECURITY=false
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    container_name: caddy
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./configs/caddy:/config/caddy
+      - ./data/caddy:/data/caddy
+    ports:
+      - 80:80
+      - 443:443
+
+networks:
+  labry:
