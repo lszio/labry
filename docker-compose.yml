@@ -77,11 +77,15 @@ services:
 
   spdf:
     image: frooodle/s-pdf:latest
+    container_name: spdf
     ports:
       - 12621:8080
     volumes:
       - ./data/spdf:/usr/share/tesseract-ocr/5/tessdata
       - ./configs/spdf:/configs
+    profiles:
+      - spdf
+      - pdf
     environment:
       - DOCKER_ENABLE_SECURITY=false
 
