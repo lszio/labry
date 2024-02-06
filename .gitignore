@@ -1,13 +1,14 @@
 .vscode
 
-data/*
 secret.yml
 
-logs
 .lsp
 .calva
 .clj-kondo
 
 .env
 
+logs
+storage/*
 configs/jellyfin
+.joyride

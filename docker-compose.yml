@@ -9,8 +9,8 @@ services:
       - 9993:9993/udp
       - 3443:3443
     volumes:
-      - ./data/zerotier:/var/lib/zerotier-one
-      - ./data/ztncui:/opt/key-networks/ztncui/etc
+      - ./storage/zerotier:/var/lib/zerotier-one
+      - ./storage/ztncui:/opt/key-networks/ztncui/etc
     environment:
       - ENDPOINT=${ZTNCUI_ENDPOINT:-localhost/9993}
       - HTTPS_PORT=3443
@@ -27,8 +27,8 @@ services:
       - PGID=1000
       - TZ=Asia/Shanghai
     volumes:
-      - ${JELLYFIN_CONFIG:-./data/jellyfin}:/config
-      - ${JELLYFIN_MEDIA:-/data/media}:/data
+      - ${JELLYFIN_CONFIG:-./configs/jellyfin}:/config
+      - ${JELLYFIN_MEDIA:-./storage/media}:/media
     ports:
       - 8096:8096
     restart: unless-stopped
@@ -41,12 +41,12 @@ services:
     restart: unless-stopped
     container_name: postgres
     environment:
-      POSTGRES_DB: ${LABRY_POSTGRES_DB:-labry}
-      POSTGRES_USER: ${LABRY_POSTGRES_USER:-labry}
-      POSTGRES_PASSWORD: ${LABRY_POSTGRES_PASSWORD:-labry}
+      POSTGRES_DB: ${POSTGRES_DB:-labry}
+      POSTGRES_USER: ${POSTGRES_USER:-labry}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-labry}
     volumes:
       - ../configs/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ${LABRY_POSTGRES_DATA:-./data/postgres}:/var/lib/postgresql/data
+      - ${POSTGRES_DATA:-./storage/postgres}:/var/lib/postgresql/data
     ports:
       - 5432:5432
     profiles:
@@ -60,7 +60,9 @@ services:
       - 2222:22
       - 3000:3000
     volumes:
-      - ${LABRY_GOGS_DATA:-./data/gogs}:/data
+      - ${GOGS_DATA:-./storage/gogs}:/data
+    labels:
+      - traefik.http.routers.gogs.rule=Host(`gogs.${DOMAIN_NAME}`)
     profiles:
       - git
       - gogs
@@ -74,6 +76,8 @@ services:
     profiles:
       - jupyter
       - notebook
+    labels:
+      - traefik.http.routers.jupyter.rule=Host(`jupyter.${DOMAIN_NAME}`)
 
   spdf:
     image: frooodle/s-pdf:latest
@@ -81,7 +85,7 @@ services:
     ports:
       - 12621:8080
     volumes:
-      - ./data/spdf:/usr/share/tesseract-ocr/5/tessdata
+      - ./storage/spdf:/usr/share/tesseract-ocr/5/tessdata
       - ./configs/spdf:/configs
     profiles:
       - spdf
@@ -89,17 +93,36 @@ services:
     environment:
       - DOCKER_ENABLE_SECURITY=false
 
-  caddy:
-    image: caddy:2
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
     restart: unless-stopped
-    container_name: caddy
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./configs/caddy:/config/caddy
-      - ./data/caddy:/data/caddy
+    command:
+      - "--providers.docker"
+      # - "--roviders.docker.defaultRule=Host(`whoami.localhost`)"
+      # - "--providers.docker.exposedbydefault=false"
     ports:
       - 80:80
       - 443:443
+      - 8080:8080
+    volumes:
+      # - ./configs/traefik:/etc/traefik
+      # - ./storage/logs/traefik:/log
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - traefik.http.routers.api.rule=Host(`traefik.${DOMAIN_NAME}`)
+      - traefik.http.routers.api.service=api@internal
+      # - traefik.http.routers.api.tls=true
+      # - traefik.http.routers.api.tls.certResolver=labry
+
+  whoami:
+    image: containous/whoami
+    container_name: whoami
+    labels:
+      - traefik.httplabry.site.routers.whoami.rule=Host(`whoami.${DOMAIN_NAME}`)
+    profiles:
+      - whoami
 
 networks:
   labry:
+  traefik:
