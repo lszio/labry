@@ -56,8 +56,8 @@ services:
 
   gogs:
     image: gogs/gogs
+    container_name: gogs
     ports:
-      - 2222:22
       - 3000:3000
     volumes:
       - ${GOGS_DATA:-./storage/gogs}:/data
@@ -119,7 +119,7 @@ services:
     image: containous/whoami
     container_name: whoami
     labels:
-      - traefik.httplabry.site.routers.whoami.rule=Host(`whoami.${DOMAIN_NAME}`)
+      - "traefik.http.routers.whoami.rule=Host(`whoami.${DOMAIN_NAME}`)"
     profiles:
       - whoami
 

@@ -1,6 +1,8 @@
 #+TITLE: Labry
 
 * envs
+DOMAIN_NAME=labry.localhost
+
 ZTNCUI_ADDRESS=1.1.1.1
 ZTNCUI_PASSWORD=password
 
